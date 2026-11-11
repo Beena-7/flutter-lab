@@ -1,0 +1,113 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MaterialApp(home: Home()));
+}
+
+class Home extends StatefulWidget {
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final id = TextEditingController();
+  final name = TextEditingController();
+  final price = TextEditingController();
+  final stock = TextEditingController();
+
+  bool inStock = true;
+  String message = '';
+
+  void fetch() async {
+    var doc = await FirebaseFirestore.instance
+        .collection('products')
+        .doc(id.text)
+        .get();
+
+    if (doc.exists) {
+      name.text = doc['name'].toString();
+      price.text = doc['price'].toString();
+      stock.text = doc['stock'].toString();
+
+      setState(() {
+        inStock = doc['inStock'] ?? true;
+        message = '';
+      });
+    } else {
+      setState(() => message = 'Product not found');
+    }
+  }
+
+  void update() async {
+    if (double.tryParse(price.text) == null ||
+        int.tryParse(stock.text) == null ||
+        double.parse(price.text) <= 0 ||
+        int.parse(stock.text) < 0) {
+      setState(() => message = 'Enter valid details');
+      return;
+    }
+
+    await FirebaseFirestore.instance
+        .collection('products')
+        .doc(id.text)
+        .update({
+      'name': name.text,
+      'price': double.parse(price.text),
+      'stock': int.parse(stock.text),
+      'inStock': inStock,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+
+    setState(() => message = 'Product Updated Successfully!');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Update Product')),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            TextField(
+              controller: id,
+              decoration: InputDecoration(labelText: 'Product ID'),
+            ),
+            ElevatedButton(
+              onPressed: fetch,
+              child: Text('Fetch Product'),
+            ),
+            TextField(
+              controller: name,
+              decoration: InputDecoration(labelText: 'Name'),
+            ),
+            TextField(
+              controller: price,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Price'),
+            ),
+            TextField(
+              controller: stock,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Stock'),
+            ),
+            SwitchListTile(
+              title: Text('In Stock'),
+              value: inStock,
+              onChanged: (v) => setState(() => inStock = v),
+            ),
+            ElevatedButton(
+              onPressed: update,
+              child: Text('Update'),
+            ),
+            Text(message),
+          ],
+        ),
+      ),
+    );
+  }
+}

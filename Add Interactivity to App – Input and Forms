@@ -1,0 +1,80 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MaterialApp(home: Home()));
+
+class Home extends StatefulWidget {
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  TextEditingController name = TextEditingController();
+  String movie = 'Avatar';
+  String time = '10 AM';
+  int tickets = 1;
+  bool popcorn = false;
+  int total = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Movie Booking')),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: ListView(
+          children: [
+            TextField(
+              controller: name,
+              decoration: InputDecoration(labelText: 'Customer Name'),
+            ),
+            DropdownButton(
+              value: movie,
+              items: ['Avatar', 'Leo', 'Jawan']
+                  .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                  .toList(),
+              onChanged: (v) => setState(() => movie = v!),
+            ),
+            ...['10 AM', '2 PM', '6 PM', '9 PM'].map(
+              (e) => RadioListTile(
+                title: Text(e),
+                value: e,
+                groupValue: time,
+                onChanged: (v) => setState(() => time = v!),
+              ),
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () => setState(() {
+                    if (tickets > 1) tickets--;
+                  }),
+                  icon: Icon(Icons.remove),
+                ),
+                Text('$tickets Tickets'),
+                IconButton(
+                  onPressed: () => setState(() => tickets++),
+                  icon: Icon(Icons.add),
+                ),
+              ],
+            ),
+            CheckboxListTile(
+              title: Text('Popcorn Combo ₹150'),
+              value: popcorn,
+              onChanged: (v) => setState(() => popcorn = v!),
+            ),
+            ElevatedButton(
+              onPressed: () => setState(() {
+                total = tickets * 180 + (popcorn ? 150 : 0);
+              }),
+              child: Text('Book Now'),
+            ),
+            Text('Name: ${name.text}'),
+            Text('Movie: $movie'),
+            Text('Show: $time'),
+            Text('Total: ₹$total'),
+          ],
+        ),
+      ),
+    );
+  }
+}

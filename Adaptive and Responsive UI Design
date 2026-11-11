@@ -1,0 +1,28 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MaterialApp(home: Home()));
+
+class Home extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Responsive UI')),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          int count = constraints.maxWidth < 600
+              ? 2
+              : constraints.maxWidth < 1000 ? 3 : 4;
+
+          return GridView.count(
+            crossAxisCount: count,
+            children: List.generate(12, (i) {
+              return Card(
+                child: Center(child: Text('Product ${i + 1}')),
+              );
+            }),
+          );
+        },
+      ),
+    );
+  }
+}

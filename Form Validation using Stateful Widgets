@@ -1,0 +1,65 @@
+import 'package:flutter/material.dart';
+
+void main() => runApp(MaterialApp(home: Home()));
+
+class Home extends StatefulWidget {
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  final formKey = GlobalKey<FormState>();
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final age = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Registration')),
+      body: Padding(
+        padding: EdgeInsets.all(20),
+        child: Form(
+          key: formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: name,
+                decoration: InputDecoration(labelText: 'Name'),
+                validator: (v) =>
+                    v!.isEmpty ? 'Enter name' : null,
+              ),
+              TextFormField(
+                controller: email,
+                decoration: InputDecoration(labelText: 'Email'),
+                validator: (v) =>
+                    v!.contains('@') ? null : 'Enter valid email',
+              ),
+              TextFormField(
+                controller: age,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Age'),
+                validator: (v) {
+                  int? a = int.tryParse(v!);
+                  return a == null || a < 1 || a > 100
+                      ? 'Enter valid age'
+                      : null;
+                },
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Registration Successful!')),
+                    );
+                  }
+                },
+                child: Text('Submit'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
